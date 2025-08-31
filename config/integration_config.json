@@ -1,0 +1,68 @@
+{
+  "detection": {
+    "signature_detection": {
+      "enabled": true,
+      "signature_file": "signatures.json",
+      "update_interval": 3600
+    },
+    "anomaly_detection": {
+      "enabled": true,
+      "threshold": 0.7,
+      "window_size": 1000,
+      "learning_rate": 0.01,
+      "internal_network_sensitivity": 0.85,
+      "internal_networks": ["192.168.0.0/16", "10.0.0.0/8", "172.16.0.0/12"],
+      "exclude_internal_anomalies": false
+    },
+    "ml_detection": {
+      "enabled": true,
+      "model_path": "ml_models/",
+      "confidence_threshold": 0.7,
+      "retrain_interval": 86400
+    },
+    "behavioral_detection": {
+      "enabled": true,
+      "session_timeout": 300,
+      "pattern_window": 3600
+    },
+    "threat_intelligence": {
+      "enabled": true,
+      "feeds": [],
+      "update_interval": 1800
+    }
+  },
+  "network": {
+    "interfaces": ["any"],
+    "capture_buffer_size": 65536
+  },
+  "packet_capture": {
+    "interface": "any",
+    "promiscuous": true,
+    "buffer_size": 65536
+  },
+  "prevention": {
+    "enable_blocking": true,
+    "whitelist": ["127.0.0.1", "::1"],
+    "block_duration": 3600
+  },
+  "logging": {
+    "log_level": "INFO",
+    "log_directory": "./logs",
+    "enable_file_logging": true,
+    "enable_console_logging": true
+  },
+  "reporting": {
+    "enable_reports": true,
+    "report_directory": "./reports",
+    "report_interval": 300
+  },
+  "performance": {
+    "max_workers": 10,
+    "batch_size": 100
+  },
+  "system": {
+    "max_threads": 10,
+    "monitoring_interval": 1,
+    "alert_threshold": 5
+  }
+}

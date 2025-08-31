@@ -1,0 +1,14 @@
+{
+  "max_rules": 10000,
+  "default_block_duration": 3600,
+  "whitelist": [
+    "127.0.0.1",
+    "::1"
+  ],
+  "enable_automatic_unblock": true,
+  "backup_method": "hosts_file",
+  "log_all_operations": true,
+  "dry_run_mode": false,
+  "chain_name": "IDS_IPS_BLOCK",
+  "rule_prefix": "IDS_IPS"
+}

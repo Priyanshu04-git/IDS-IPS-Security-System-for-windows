@@ -1,0 +1,61 @@
+# IDS/IPS Portable Distribution - Contents
+
+## Included Files and Directories:
+
+### Launchers:
+- START_HERE.bat - Easy menu launcher (RECOMMENDED)
+- Run_as_Administrator.bat - Full-featured mode
+- Run_Standard_Mode.bat - Limited mode (no admin required)
+- IDS_IPS_Web_Interface.bat - Web interface only
+- install.bat - Professional installer
+
+### Application Core:
+- app/main_windows.py - Windows entry point
+- app/real_ids_engine.py - Main detection engine
+- app/database_setup.py - Database initialization
+- app/simple_detector.py - Basic detection module
+
+### Detection Engines:
+- app/detection_engine/ - Advanced threat detection modules
+- app/packet_capture/ - Network monitoring
+- app/prevention_engine/ - IP blocking and prevention
+
+### System Components:
+- app/logging_system/ - Comprehensive logging
+- app/reporting_system/ - Report generation
+- app/integration/ - System integration
+- app/cloud_storage/ - Cloud connectivity
+
+### Configuration:
+- app/config/ - System configuration files
+- app/documentation/ - User guides and manuals
+
+### Runtime:
+- python/ - Portable Python 3.11.5 runtime (OPTIMIZED)
+- python/Lib/ - Python standard library
+- python/Scripts/ - Python tools
+
+### Data Storage:
+- app/logs/ - System logs (created at runtime)
+
+## Features:
++ Self-contained - No external dependencies
++ Portable - Run from any location
++ Professional - Windows-integrated experience
++ Secure - Administrator privilege handling
++ User-friendly - Multiple launch options
+
+## Requirements:
+- Windows 10/11 (64-bit)
+- Administrator privileges (for full functionality)
+- 100MB disk space
+- Network interface for monitoring
+
+## Optimization:
+- Removed 122+ unnecessary files
+- Saved 12.4 MB of space
+- Cleaned Python cache files
+- Removed development artifacts
+- Optimized for distribution
+
+Total Size: ~8MB (highly optimized)
