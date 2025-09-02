@@ -144,13 +144,13 @@ echo Launching enhanced dashboard with real-time data detection...
 REM Set Python path for system Python with Flask
 set "PYTHON_PATH=C:\Users\priya\AppData\Local\Programs\Python\Python311\python.exe"
 
-REM Try enhanced dashboard first
+REM Launch real-time dashboard (not enhanced demo)
 echo Using Python: %PYTHON_PATH%
-"%PYTHON_PATH%" web_dashboard_enhanced.py
+"%PYTHON_PATH%" web_dashboard_real.py
 
 if %errorLevel% neq 0 (
     echo.
-    echo ⚠️  Enhanced dashboard failed, trying standard version...
+    echo ⚠️  Real-time dashboard failed, trying standard version...
     "%PYTHON_PATH%" web_dashboard.py
 )
 
@@ -212,7 +212,7 @@ echo.
 echo Launching demo dashboard with sample data...
 set "PYTHON_PATH=C:\Users\priya\AppData\Local\Programs\Python\Python311\python.exe"
 echo Using Python: %PYTHON_PATH%
-"%PYTHON_PATH%" web_dashboard_enhanced.py --demo
+"%PYTHON_PATH%" web_dashboard_real.py --demo
 
 if %errorLevel% neq 0 (
     echo.
@@ -303,7 +303,7 @@ if exist "%APP_DIR%\working_ids.py" (
     echo ❌ Working IDS System: Missing
 )
 
-if exist "%APP_DIR%\web_dashboard_enhanced.py" (
+if exist "%APP_DIR%\web_dashboard_real.py" (
     echo ✅ Real-time Dashboard: Available
 ) else (
     echo ❌ Real-time Dashboard: Missing

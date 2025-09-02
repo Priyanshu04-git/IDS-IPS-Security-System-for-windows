@@ -353,6 +353,24 @@ def get_system_health():
     }
     return jsonify(health_status)
 
+
+
+@app.errorhandler(500)
+def internal_error(error):
+    """Handle internal server errors"""
+    return jsonify({
+        'error': 'Internal server error',
+        'message': 'Please check the server logs for details'
+    }), 500
+
+@app.errorhandler(404) 
+def not_found(error):
+    """Handle 404 errors"""
+    return jsonify({
+        'error': 'Not found',
+        'message': 'The requested resource was not found'
+    }), 404
+
 if __name__ == '__main__':
     print("🛡️ Starting REAL-TIME IDS/IPS Web Dashboard...")
     print("=" * 60)

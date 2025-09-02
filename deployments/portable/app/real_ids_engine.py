@@ -193,6 +193,15 @@ class RealIDSEngine:
                 # Get packet from queue (with timeout)
                 packet_info = self.packet_queue.get(timeout=1.0)
                 
+                # Skip if packet_info is None or invalid
+                if packet_info is None:
+                    continue
+                    
+                # Validate packet_info has required attributes
+                if not hasattr(packet_info, 'src_ip') or not hasattr(packet_info, 'dst_ip'):
+                    self.logger.warning("Invalid packet info received, skipping")
+                    continue
+                
                 self.stats['packets_processed'] += 1
                 
                 # Run through all detection engines
@@ -201,7 +210,11 @@ class RealIDSEngine:
                 # Simple detector (always runs)
                 if hasattr(self, 'simple_detector') and self.simple_detector:
                     simple_results = self.simple_detector.analyze_packet(packet_info)
-                    threats.extend(simple_results)  # Now always returns list
+                    if simple_results:  # Check if not None
+                        if isinstance(simple_results, list):
+                            threats.extend(simple_results)
+                        else:
+                            threats.append(simple_results)
                 
                 # Advanced signature detection
                 if self.signature_detector:

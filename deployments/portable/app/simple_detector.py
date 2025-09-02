@@ -54,7 +54,7 @@ class SimpleRealDetector:
     def analyze_packet(self, packet_info) -> List[Dict]:
         """Analyze a packet for threats"""
         if not self.running:
-            return None
+            return []  # Return empty list instead of None
             
         # Simple threat detection logic
         threat_detected = False
