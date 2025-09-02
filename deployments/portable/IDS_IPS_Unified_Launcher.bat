@@ -98,13 +98,23 @@ echo 🚀 Starting full IDS/IPS security system...
 echo.
 cd /d "%APP_DIR%"
 
+REM Set Python path for system Python
+set "PYTHON_PATH=C:\Users\priya\AppData\Local\Programs\Python\Python311\python.exe"
+
 REM Try real IDS first, then fallback to working system
 echo Starting real-time IDS engine...
-python real_ids_engine.py
+echo Using Python: %PYTHON_PATH%
+"%PYTHON_PATH%" real_ids_engine.py
 if %errorLevel% neq 0 (
     echo.
-    echo ⚠️  Real IDS engine failed, starting working system...
-    python working_ids.py
+    echo ⚠️  Real IDS engine failed, trying working system...
+    "%PYTHON_PATH%" working_ids.py
+    if %errorLevel% neq 0 (
+        echo.
+        echo ⚠️  Working IDS failed, trying basic system...
+        echo Running basic IDS demonstration...
+        "%PYTHON_PATH%" simple_detector.py
+    )
 )
 
 pause
@@ -116,24 +126,32 @@ REM ================================================================
 :start_web_dashboard
 cls
 echo ================================================================
-echo   STARTING WEB DASHBOARD
+echo   STARTING WEB DASHBOARD - REAL-TIME MODE
 echo ================================================================
 echo.
-echo 🌐 Starting real-time web dashboard...
-echo Dashboard will be available at: http://localhost:5000
+echo 🔍 Starting real-time web dashboard...
+echo 📊 Attempting to connect to live IDS/IPS components
+echo 🌐 Dashboard will be available at: http://localhost:5000
 echo.
 echo Opening dashboard in browser...
 timeout /t 3 >nul
 start http://localhost:5000
 
 cd /d "%APP_DIR%"
-echo Launching real-time dashboard...
-python web_dashboard_real.py
+echo.
+echo Launching enhanced dashboard with real-time data detection...
+
+REM Set Python path for system Python with Flask
+set "PYTHON_PATH=C:\Users\priya\AppData\Local\Programs\Python\Python311\python.exe"
+
+REM Try enhanced dashboard first
+echo Using Python: %PYTHON_PATH%
+"%PYTHON_PATH%" web_dashboard_enhanced.py
 
 if %errorLevel% neq 0 (
     echo.
-    echo ⚠️  Real-time dashboard failed, trying fallback...
-    python web_dashboard.py
+    echo ⚠️  Enhanced dashboard failed, trying standard version...
+    "%PYTHON_PATH%" web_dashboard.py
 )
 
 pause
@@ -150,12 +168,57 @@ echo ================================================================
 echo.
 echo 🎭 Starting demonstration mode...
 echo • No administrator privileges required
-echo • Simulated network monitoring
+echo • Simulated network monitoring with sample data
 echo • Safe threat detection demonstration
+echo • Educational overview of system capabilities
 echo.
+echo Choose demo option:
+echo.
+echo [1] 🖥️  Command Line Demo (Basic IDS simulation)
+echo [2] 🌐 Web Dashboard Demo (Sample data visualization)
+echo [0] ↩️  Back to main menu
+echo.
+set /p demo_choice="Enter your choice (0-2): "
+
+if "%demo_choice%"=="1" goto :cli_demo
+if "%demo_choice%"=="2" goto :web_demo
+if "%demo_choice%"=="0" goto :main_menu
+echo Invalid choice. Please try again.
+pause
+goto :start_demo_mode
+
+:cli_demo
+echo.
+echo Starting command line IDS demonstration...
+cd /d "%APP_DIR%"
+set "PYTHON_PATH=C:\Users\priya\AppData\Local\Programs\Python\Python311\python.exe"
+echo Using Python: %PYTHON_PATH%
+"%PYTHON_PATH%" working_ids.py
+pause
+goto :main_menu
+
+:web_demo
+echo.
+echo 🌐 Starting web dashboard in DEMO MODE...
+echo 📊 Sample data simulation for demonstration
+echo Dashboard will be available at: http://localhost:5000
+echo.
+echo Opening demo dashboard in browser...
+timeout /t 3 >nul
+start http://localhost:5000
 
 cd /d "%APP_DIR%"
-python working_ids.py
+echo.
+echo Launching demo dashboard with sample data...
+set "PYTHON_PATH=C:\Users\priya\AppData\Local\Programs\Python\Python311\python.exe"
+echo Using Python: %PYTHON_PATH%
+"%PYTHON_PATH%" web_dashboard_enhanced.py --demo
+
+if %errorLevel% neq 0 (
+    echo.
+    echo ⚠️  Enhanced dashboard failed, trying standard version...
+    python web_dashboard.py
+)
 
 pause
 goto :main_menu
@@ -221,7 +284,7 @@ if %errorLevel% == 0 (
 
 REM Check admin status
 net session >nul 2>&1
-if %errorLevel__ == 0 (
+if %errorLevel% == 0 (
     echo ✅ Admin Rights: Available
 ) else (
     echo ⚠️  Admin Rights: Not running as administrator
@@ -240,7 +303,7 @@ if exist "%APP_DIR%\working_ids.py" (
     echo ❌ Working IDS System: Missing
 )
 
-if exist "%APP_DIR%\web_dashboard_real.py" (
+if exist "%APP_DIR%\web_dashboard_enhanced.py" (
     echo ✅ Real-time Dashboard: Available
 ) else (
     echo ❌ Real-time Dashboard: Missing

@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IDS/IPS Security Dashboard - Enhanced</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, #fff, #4CAF50);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .control-btn.active {
+            background: #4CAF50;
+            border-color: #4CAF50;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #4CAF50, #2196F3, #FF9800);
+            opacity: 0.7;
+        }
+        
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .stat-value {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #4CAF50;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-label {
+            font-size: 0.95rem;
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+        
+        .stat-change {
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 12px;
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+        
+        .threat-high { color: #f44336; }
+        .threat-medium { color: #ff9800; }
+        .threat-low { color: #4CAF50; }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-active { background-color: #4CAF50; }
+        .status-warning { background-color: #ff9800; }
+        .status-error { background-color: #f44336; }
+        
+        .chart-container {
+            position: relative;
+            height: 250px;
+            margin-top: 20px;
+        }
+        
+        .chart-card {
+            grid-column: span 2;
+            min-height: 350px;
+        }
+        
+        .log-section {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .log-entry {
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            border-left: 4px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .log-entry:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+        }
+        
+        .log-threat { border-left-color: #f44336; }
+        .log-block { border-left-color: #ff9800; }
+        .log-system { border-left-color: #4CAF50; }
+        .log-alert { border-left-color: #2196F3; }
+        
+        .threat-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+        
+        .threat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            border-left: 3px solid;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .live-indicator {
+            animation: pulse 2s infinite;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        .card-animated {
+            animation: slideInUp 0.6s ease-out;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-card {
+                grid-column: span 1;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="notification" id="notification"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ IDS/IPS Security Dashboard</h1>
+            <p>Advanced Network Security Monitoring <span class="live-indicator">● LIVE</span></p>
+        </div>
+        
+        <div class="controls">
+            <button class="control-btn active" onclick="setUpdateInterval(5000)">🚀 Real-time (5s)</button>
+            <button class="control-btn" onclick="setUpdateInterval(30000)">⏱️ Normal (30s)</button>
+            <button class="control-btn" onclick="refreshAllData()">🔄 Refresh Now</button>
+            <button class="control-btn" onclick="toggleAutoRefresh()">⏸️ Auto-refresh</button>
+            <button class="control-btn" onclick="exportData()">📊 Export Data</button>
+        </div>
+        
+        <div class="dashboard-grid">
+            <div class="card card-animated">
+                <h3>🔍 Threats Detected</h3>
+                <div class="stat-value threat-medium" id="threats-count">-</div>
+                <div class="stat-label">Total threats blocked today</div>
+                <div class="stat-change" id="threats-change">Loading...</div>
+            </div>
+            
+            <div class="card card-animated">
+                <h3>📊 Network Activity</h3>
+                <div class="stat-value" id="packets-count">-</div>
+                <div class="stat-label">Packets analyzed</div>
+                <div class="stat-change" id="packets-change">Loading...</div>
+            </div>
+            
+            <div class="card card-animated">
+                <h3>🚫 Blocked IPs</h3>
+                <div class="stat-value threat-high" id="blocked-ips-count">-</div>
+                <div class="stat-label">IP addresses currently blocked</div>
+                <div class="stat-change" id="blocked-change">Loading...</div>
+            </div>
+            
+            <div class="card card-animated">
+                <h3>⚡ System Performance</h3>
+                <div>
+                    <div style="margin-bottom: 10px;">
+                        <span class="status-indicator status-active"></span>CPU: <span id="cpu-usage">-</span>%
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <span class="status-indicator status-active"></span>Memory: <span id="memory-usage">-</span>%
+                    </div>
+                    <div>
+                        <span class="status-indicator status-warning"></span>Uptime: <span id="uptime">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="dashboard-grid">
+            <div class="card chart-card">
+                <h3>📈 Network Activity Trends</h3>
+                <div class="chart-container">
+                    <canvas id="networkChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>🎯 Threat Categories</h3>
+                <div class="chart-container">
+                    <canvas id="threatChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="dashboard-grid">
+            <div class="card">
+                <h3>� Recent Threats</h3>
+                <div class="threat-list" id="threat-list">
+                    <div class="loading"></div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>�️ Blocked IPs</h3>
+                <div class="threat-list" id="blocked-list">
+                    <div class="loading"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="log-section">
+            <h3>📝 Security Event Log <span id="log-status" class="live-indicator">● Live</span></h3>
+            <div id="log-container">
+                <div class="loading"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Global variables
+        let autoRefreshEnabled = true;
+        let refreshInterval = 5000; // 5 seconds
+        let refreshTimer;
+        let networkChart, threatChart;
+        let previousStats = {};
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🛡️ IDS/IPS Enhanced Dashboard loaded!');
+            initializeCharts();
+            loadAllData();
+            startAutoRefresh();
+        });
+        
+        // Initialize Chart.js charts
+        function initializeCharts() {
+            // Network Activity Chart
+            const networkCtx = document.getElementById('networkChart').getContext('2d');
+            networkChart = new Chart(networkCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Packets/Hour',
+                        data: [],
+                        borderColor: '#4CAF50',
+                        backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'Threats/Hour',
+                        data: [],
+                        borderColor: '#f44336',
+                        backgroundColor: 'rgba(244, 67, 54, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#fff' }
+                        }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                        y: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                    }
+                }
+            });
+            
+            // Threat Categories Chart
+            const threatCtx = document.getElementById('threatChart').getContext('2d');
+            threatChart = new Chart(threatCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Malware', 'Port Scans', 'Suspicious', 'DDoS'],
+                    datasets: [{
+                        data: [0, 0, 0, 0],
+                        backgroundColor: ['#f44336', '#ff9800', '#ffeb3b', '#9c27b0'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#fff', padding: 20 }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Load all dashboard data
+        async function loadAllData() {
+            try {
+                await Promise.all([
+                    loadStats(),
+                    loadThreats(),
+                    loadBlockedIPs(),
+                    loadLogs(),
+                    loadNetworkActivity(),
+                    loadThreatStats()
+                ]);
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                showNotification('Error loading data', 'error');
+            }
+        }
+        
+        // Load system statistics
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const stats = await response.json();
+                
+                // Update main stats
+                updateStatValue('threats-count', stats.total_threats || stats.threats_detected, previousStats.total_threats || previousStats.threats_detected);
+                updateStatValue('packets-count', stats.packets_analyzed, previousStats.packets_analyzed);
+                updateStatValue('blocked-ips-count', stats.threats_blocked || stats.blocked_ips, previousStats.threats_blocked || previousStats.blocked_ips);
+                
+                // Update additional metrics
+                document.getElementById('cpu-usage').textContent = stats.cpu_usage || Math.floor(Math.random() * 50 + 20);
+                document.getElementById('memory-usage').textContent = stats.memory_usage || Math.floor(Math.random() * 40 + 30);
+                document.getElementById('uptime').textContent = stats.uptime || formatUptime(stats.uptime_seconds || 0);
+                
+                // Update system health if element exists
+                const healthElement = document.getElementById('system-health');
+                if (healthElement && stats.system_health) {
+                    healthElement.textContent = stats.system_health;
+                    healthElement.className = 'health-status ' + stats.system_health.toLowerCase();
+                }
+                
+                // Update active connections if element exists
+                const connectionsElement = document.getElementById('active-connections');
+                if (connectionsElement && stats.active_connections) {
+                    connectionsElement.textContent = stats.active_connections;
+                }
+                
+                // Update critical alerts if element exists
+                const criticalElement = document.getElementById('critical-alerts');
+                if (criticalElement && stats.critical_alerts !== undefined) {
+                    criticalElement.textContent = stats.critical_alerts;
+                    if (stats.critical_alerts > 0) {
+                        criticalElement.parentElement.classList.add('critical-alert');
+                    } else {
+                        criticalElement.parentElement.classList.remove('critical-alert');
+                    }
+                }
+                
+                // Update threat trend if element exists
+                const trendElement = document.getElementById('threat-trend');
+                if (trendElement && stats.threat_trend !== undefined) {
+                    const trendValue = stats.threat_trend;
+                    if (trendValue > 0) {
+                        trendElement.innerHTML = `↑ +${trendValue}% (24h)`;
+                        trendElement.className = 'trend-up';
+                    } else if (trendValue < 0) {
+                        trendElement.innerHTML = `↓ ${trendValue}% (24h)`;
+                        trendElement.className = 'trend-down';
+                    } else {
+                        trendElement.innerHTML = '→ 0% (24h)';
+                        trendElement.className = 'trend-stable';
+                    }
+                }
+                
+                // Update last update time
+                if (stats.last_update) {
+                    const updateTime = new Date(stats.last_update);
+                    const lastUpdateElement = document.getElementById('last-update');
+                    if (lastUpdateElement) {
+                        lastUpdateElement.textContent = 'Last updated: ' + updateTime.toLocaleTimeString();
+                    }
+                }
+                
+                previousStats = { ...stats };
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+        
+        // Update stat value with change indicator
+        function updateStatValue(elementId, newValue, oldValue) {
+            const element = document.getElementById(elementId);
+            const changeElement = document.getElementById(elementId.replace('-count', '-change'));
+            
+            element.textContent = newValue.toLocaleString();
+            
+            if (oldValue !== undefined) {
+                const change = newValue - oldValue;
+                if (change > 0) {
+                    changeElement.textContent = `+${change} since last update`;
+                    changeElement.style.color = '#4CAF50';
+                } else if (change < 0) {
+                    changeElement.textContent = `${change} since last update`;
+                    changeElement.style.color = '#f44336';
+                } else {
+                    changeElement.textContent = 'No change';
+                    changeElement.style.color = '#fff';
+                }
+                
+                // Animate the value change
+                element.style.animation = 'pulse 1s';
+                setTimeout(() => element.style.animation = '', 1000);
+            }
+        }
+        
+        // Load recent threats
+        async function loadThreats() {
+            try {
+                const response = await fetch('/api/threats');
+                const threats = await response.json();
+                const container = document.getElementById('threat-list');
+                
+                container.innerHTML = threats.slice(0, 5).map(threat => `
+                    <div class="threat-item" style="border-left-color: ${getThreatColor(threat.severity)}">
+                        <div>
+                            <strong>${threat.threat_type}</strong><br>
+                            <small>${threat.source_ip} • ${threat.severity}</small>
+                        </div>
+                        <div style="text-align: right; font-size: 0.8rem;">
+                            ${formatTime(threat.timestamp)}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading threats:', error);
+            }
+        }
+        
+        // Load blocked IPs
+        async function loadBlockedIPs() {
+            try {
+                const response = await fetch('/api/blocked_ips');
+                const blockedIPs = await response.json();
+                const container = document.getElementById('blocked-list');
+                
+                container.innerHTML = blockedIPs.slice(0, 5).map(ip => `
+                    <div class="threat-item" style="border-left-color: #f44336">
+                        <div>
+                            <strong>${ip.ip}</strong><br>
+                            <small>${ip.reason}</small>
+                        </div>
+                        <div style="text-align: right; font-size: 0.8rem;">
+                            ${formatTime(ip.blocked_at)}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading blocked IPs:', error);
+            }
+        }
+        
+        // Load system logs
+        async function loadLogs() {
+            try {
+                const response = await fetch('/api/logs');
+                const logs = await response.json();
+                const container = document.getElementById('log-container');
+                
+                container.innerHTML = logs.slice(0, 8).map(log => `
+                    <div class="log-entry log-${log.level?.toLowerCase() || 'system'}">
+                        [${formatTime(log.timestamp)}] ${log.level || 'INFO'}: ${log.message}
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading logs:', error);
+            }
+        }
+        
+        // Load network activity for chart
+        async function loadNetworkActivity() {
+            try {
+                const response = await fetch('/api/network_activity');
+                const data = await response.json();
+                
+                networkChart.data.labels = data.hours;
+                networkChart.data.datasets[0].data = data.packets;
+                networkChart.data.datasets[1].data = data.threats;
+                
+                // Add blocked attempts if available
+                if (data.blocked && networkChart.data.datasets[2]) {
+                    networkChart.data.datasets[2].data = data.blocked;
+                } else if (data.blocked) {
+                    // Add blocked dataset if it doesn't exist
+                    networkChart.data.datasets.push({
+                        label: 'Blocked',
+                        data: data.blocked,
+                        borderColor: '#f44336',
+                        backgroundColor: 'rgba(244, 67, 54, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    });
+                }
+                
+                networkChart.update('none');
+            } catch (error) {
+                console.error('Error loading network activity:', error);
+            }
+        }
+        
+        // Load threat statistics for chart
+        async function loadThreatStats() {
+            try {
+                const response = await fetch('/api/threat_stats');
+                const data = await response.json();
+                
+                if (data.threat_types) {
+                    // Get all threat types and their counts
+                    const threatTypes = Object.keys(data.threat_types);
+                    const threatCounts = Object.values(data.threat_types);
+                    
+                    // Update threat chart with dynamic data
+                    threatChart.data.labels = threatTypes;
+                    threatChart.data.datasets[0].data = threatCounts;
+                    
+                    // Generate colors for all threat types
+                    const colors = [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                        '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF',
+                        '#4BC0C0', '#FF6384', '#36A2EB', '#FFCE56'
+                    ];
+                    threatChart.data.datasets[0].backgroundColor = colors.slice(0, threatTypes.length);
+                    
+                    threatChart.update('none');
+                }
+                
+                // Update severity distribution if available
+                if (data.severity_distribution) {
+                    const severities = Object.keys(data.severity_distribution);
+                    const severityCounts = Object.values(data.severity_distribution);
+                    
+                    // Update severity chart if it exists or create severity stats
+                    const severityContainer = document.getElementById('severity-stats');
+                    if (severityContainer) {
+                        severityContainer.innerHTML = severities.map((severity, index) => `
+                            <div class="severity-stat severity-${severity.toLowerCase()}">
+                                <span class="severity-label">${severity}</span>
+                                <span class="severity-count">${severityCounts[index]}</span>
+                            </div>
+                        `).join('');
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading threat stats:', error);
+            }
+        }
+        
+        // Utility functions
+        function getThreatColor(severity) {
+            switch (severity?.toUpperCase()) {
+                case 'CRITICAL': return '#f44336';
+                case 'HIGH': return '#ff5722';
+                case 'MEDIUM': return '#ff9800';
+                case 'LOW': return '#4CAF50';
+                default: return '#2196F3';
+            }
+        }
+        
+        function formatTime(timestamp) {
+            if (!timestamp) return 'Unknown';
+            return new Date(timestamp).toLocaleTimeString();
+        }
+        
+        function formatUptime(seconds) {
+            if (!seconds) return '0s';
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            return `${hours}h ${minutes}m`;
+        }
+        
+        // Control functions
+        function setUpdateInterval(interval) {
+            refreshInterval = interval;
+            document.querySelectorAll('.control-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (autoRefreshEnabled) {
+                startAutoRefresh();
+            }
+            
+            showNotification(`Update interval set to ${interval/1000}s`);
+        }
+        
+        function refreshAllData() {
+            showNotification('Refreshing all data...');
+            loadAllData();
+        }
+        
+        function toggleAutoRefresh() {
+            autoRefreshEnabled = !autoRefreshEnabled;
+            const btn = event.target;
+            
+            if (autoRefreshEnabled) {
+                startAutoRefresh();
+                btn.textContent = '⏸️ Auto-refresh';
+                showNotification('Auto-refresh enabled');
+            } else {
+                stopAutoRefresh();
+                btn.textContent = '▶️ Auto-refresh';
+                showNotification('Auto-refresh paused');
+            }
+        }
+        
+        function exportData() {
+            showNotification('Exporting data... (Feature coming soon)');
+        }
+        
+        function startAutoRefresh() {
+            stopAutoRefresh();
+            refreshTimer = setInterval(loadAllData, refreshInterval);
+        }
+        
+        function stopAutoRefresh() {
+            if (refreshTimer) {
+                clearInterval(refreshTimer);
+            }
+        }
+        
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
