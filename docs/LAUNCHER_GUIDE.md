@@ -13,9 +13,9 @@ The IDS/IPS Security System has been **streamlined and simplified** to provide a
 | File | Purpose | When to Use |
 |------|---------|-------------|
 | **`START_HERE.bat`** | 🎯 **Main Entry Point** | **Always start here!** |
-| **`IDS_IPS_Unified_Launcher.bat`** | 🛠️ **All-in-One Control Center** | Advanced users, direct access |
-| **`IDS_IPS_Web_Interface.bat`** | 🌐 **Direct Web Dashboard** | Quick dashboard access |
-| **`install.bat`** | ⚙️ **System Setup** | First-time installation |
+| **`IDS_IPS_Unified_Launcher.bat`** | 🛠️ **All-in-One Control Center** | Advanced users, menu-driven access |
+| **`Start_Real_Dashboard.bat`** | 🌐 **Direct Real-time Dashboard** | Quick real-time monitoring access |
+| **`Start_Demo_Dashboard.bat`** | 🎮 **Demo Mode Dashboard** | Testing without admin privileges |
 
 ### 🗑️ Removed Files (Previously Had 10+ Files):
 
@@ -117,7 +117,8 @@ When you run `START_HERE.bat`, you'll see this unified menu:
 ### 🌐 Quick Dashboard Access:
 ```bash
 Option A: START_HERE.bat → Option 2
-Option B: Double-click IDS_IPS_Web_Interface.bat
+Option B: Double-click Start_Real_Dashboard.bat
+Option C: Double-click Start_Demo_Dashboard.bat
 ```
 
 ---
@@ -186,14 +187,10 @@ The system now logs launcher actions for audit purposes:
 ### 🕰️ Old System (Complex):
 ```
 Multiple confusing batch files:
-├── START_HERE.bat (complex menu)
-├── Run_as_Administrator.bat
-├── Run_Standard_Mode.bat
-├── IDS_IPS_System_Admin.bat
-├── IDS_IPS_System.bat
-├── IDS_IPS_Demo.bat
-├── IDS_IPS_Web_Interface.bat
-└── install.bat
+├── START_HERE.bat (main entry point)
+├── IDS_IPS_Unified_Launcher.bat (all-in-one menu)
+├── Start_Real_Dashboard.bat (direct real-time access)
+└── Start_Demo_Dashboard.bat (demo mode)
 
 User experience:
 ❌ Confusing file names
@@ -208,8 +205,8 @@ User experience:
 Clean, unified structure:
 ├── START_HERE.bat (simple redirect)
 ├── IDS_IPS_Unified_Launcher.bat (everything)
-├── IDS_IPS_Web_Interface.bat (web only)
-└── install.bat (setup)
+├── Start_Real_Dashboard.bat (real-time monitoring)
+└── Start_Demo_Dashboard.bat (demo mode)
 
 User experience:
 ✅ Single entry point
@@ -233,15 +230,15 @@ User experience:
 5. **Check Option 5 for problems** - System status shows component health
 
 ### 🔧 For System Administrators:
-1. **Deploy via install.bat** - Use the installer for enterprise deployment
-2. **Test with Demo Mode first** - Verify functionality before production
+1. **Deploy via tools/install_windows.bat** - Use the installer for enterprise deployment
+2. **Test with Demo Mode first** - Use Start_Demo_Dashboard.bat to verify functionality
 3. **Monitor via web dashboard** - Use http://localhost:5000 for monitoring
 4. **Regular status checks** - Use Option 5 to verify system health
 5. **Keep launcher updated** - Update unified launcher as system evolves
 
 ### 💼 For IT Departments:
 1. **Standardize on unified launcher** - Train users on single entry point
-2. **Script silent installation** - Use install.bat with automation
+2. **Script silent installation** - Use tools/install_windows.bat with automation
 3. **Monitor launcher logs** - Track usage and identify issues
 4. **Customize menu if needed** - Add organization-specific options
 5. **Document local procedures** - Create org-specific usage guides
