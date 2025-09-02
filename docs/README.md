@@ -18,14 +18,14 @@
 
 ### The Easiest Way (Recommended):
 1. **Extract** this archive to any folder (e.g., `C:\IDS_IPS_System`)
-2. **Double-click** `START_HERE.bat`
-3. **Choose Option 1** from the menu for full functionality
-4. **Allow administrator privileges** when prompted
-5. **Open browser** to http://localhost:5000 for web dashboard
+2. **Navigate** to `deployments/portable/`
+3. **Double-click** `Start_Real_Dashboard.bat` for real-time monitoring
+4. **Open browser** to http://localhost:5000 for web dashboard
 
-### Alternative Quick Access:
-- **Web Dashboard Only**: Double-click `IDS_IPS_Web_Interface.bat`
-- **Demo Mode**: Use unified launcher → Option 3 (no admin required)
+### Alternative Launch Options:
+- **Demo Mode**: Double-click `Start_Demo_Dashboard.bat` (no admin required)
+- **Full Menu**: Double-click `IDS_IPS_Unified_Launcher.bat` for all options
+- **Quick Guide**: See `QUICK_START.md` in portable folder
 
 ---
 

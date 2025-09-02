@@ -1,11 +1,22 @@
-# 🛡️ IDS/IPS Security System
+# 🛡️ IDS## 🚀 Quick Start
+
+**Get running in 60 seconds:**
+
+1. **Navigate** to [`deployments/portable/`](deployments/portable/)
+2. **Double-click** `Start_Real_Dashboard.bat` for real-time monitoring
+   - *OR* `Start_Demo_Dashboard.bat` for demo mode
+   - *OR* `IDS_IPS_Unified_Launcher.bat` for full menu
+3. **Access** web dashboard at http://localhost:5000
+
+**That's it! Your network is now protected with enterprise-grade security.**rity System
 
 **Enterprise-Grade Intrusion Detection and Prevention System**
 
-[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](#)
+[![Version](https://img.shields.io/badge/version-2.1.0-blue.svg)](#)
 [![License](https://img.shields.io/badge/license-Enterprise-green.svg)](#)
 [![Platform](https://img.shields.io/badge/platform-Windows-lightgrey.svg)](#)
 [![Python](https://img.shields.io/badge/python-3.7+-brightgreen.svg)](https://python.org)
+[![Updated](https://img.shields.io/badge/updated-September_2025-brightgreen.svg)](#)
 
 ## � Quick Start
 
@@ -48,41 +59,30 @@ This comprehensive IDS/IPS system provides real-time network monitoring, advance
 IDS_IPS_Windows_Final/
 ├── 📚 docs/                    # Documentation
 │   ├── README.md               # Complete user guide
-│   ├── README.txt              # Quick reference
-│   ├── DOC_INDEX.md           # Documentation navigation
-│   └── LAUNCHER_GUIDE.md      # Launcher structure guide
-├── 🚀 deployments/            # Ready-to-use deployments
-│   └── portable/              # Portable Windows deployment
-│       ├── START_HERE.bat     # Main entry point
+│   └── README.txt              # Quick reference
+├── 🚀 deployments/            # Ready-to-use deployment
+│   └── portable/              # Main working system
 │       ├── IDS_IPS_Unified_Launcher.bat  # All-in-one launcher
+│       ├── Start_Real_Dashboard.bat      # Real-time dashboard
+│       ├── Start_Demo_Dashboard.bat      # Demo mode
+│       ├── QUICK_START.md     # Quick start guide
 │       ├── python/            # Portable Python runtime
 │       └── app/               # Application files
-├── 💻 src/                    # Source code
-│   ├── core/                  # Core IDS/IPS engines
-│   │   ├── real_ids_engine.py # Advanced IDS engine
-│   │   ├── working_ids.py     # Simplified IDS system
-│   │   ├── data_manager.py    # Database management
-│   │   └── main_windows.py    # Windows main entry
-│   ├── web/                   # Web dashboard
-│   │   ├── web_dashboard_real.py  # Real-time dashboard
-│   │   ├── web_dashboard.py   # Fallback dashboard
-│   │   └── templates/         # HTML templates
-│   ├── detection/             # Detection engines
-│   │   ├── signature_detector.py  # Signature-based detection
-│   │   ├── anomaly_detector.py    # Anomaly detection
-│   │   ├── ml_detector.py         # Machine learning detection
-│   │   └── threat_scoring.py      # Threat assessment
-│   ├── prevention/            # Prevention engines
-│   │   └── ip_blocker.py      # IP blocking system
-│   └── utils/                 # Utility modules
-│       ├── logging_system/    # Logging infrastructure
-│       ├── reporting_system/  # Report generation
-│       ├── packet_capture/    # Network packet capture
-│       └── integration/       # System integration
+│           ├── web_dashboard_real.py      # Real-time dashboard
+│           ├── web_dashboard_enhanced.py  # Enhanced demo dashboard
+│           ├── real_ids_engine.py         # Advanced IDS engine
+│           ├── working_ids.py             # Simplified IDS system
+│           ├── simple_detector.py         # Threat detection
+│           ├── templates/                 # HTML templates
+│           ├── packet_capture/            # Network monitoring
+│           ├── project_debugger.py        # System diagnostics
+│           ├── project_optimizer.py       # System optimization
+│           ├── health_check.py            # Health monitoring
+│           └── port_check.py              # Port availability
 ├── ⚙️ config/                 # Configuration files
 ├── 📊 data/                   # Data storage (created at runtime)
 ├── 📝 logs/                   # Log files (created at runtime)
-├── 🧪 tests/                  # Test suite (future)
+├── 🧪 tests/                  # Test suite
 ├── 🛠️ tools/                  # Development tools
 └── 📄 README.md               # This file
 ```
@@ -98,16 +98,22 @@ IDS_IPS_Windows_Final/
 # Navigate to portable deployment
 cd deployments/portable/
 
-# Run the main launcher
-START_HERE.bat
+# Quick Start - Option 1: Real-time Dashboard
+./Start_Real_Dashboard.bat
+
+# Quick Start - Option 2: Demo Mode
+./Start_Demo_Dashboard.bat
+
+# Quick Start - Option 3: Full Menu
+./IDS_IPS_Unified_Launcher.bat
 ```
 
 **Features:**
-- ✅ No installation required
-- ✅ Includes portable Python runtime
-- ✅ Self-contained with all dependencies
-- ✅ Works on any Windows system
-- ✅ Can be run from USB drive
+- ✅ No installation required - runs immediately
+- ✅ Portable Python runtime included
+- ✅ Real-time threat detection
+- ✅ Web dashboard interface
+- ✅ Comprehensive diagnostic tools
 
 ### Option 2: Source Installation  
 **Perfect for:** Development, customization, large deployments
@@ -666,6 +672,25 @@ Ready to deploy your comprehensive IDS/IPS system? Follow these steps:
 6. **🛡️ Start Protection** - Begin monitoring your network for threats
 
 For detailed instructions, please refer to the comprehensive documentation included in this package.
+
+---
+
+## 🆕 Recent Updates (September 2025)
+
+### Version 2.1.0 - Optimized Release
+- ✅ **Streamlined Architecture** - Consolidated to single deployments/portable/ structure
+- ✅ **Enhanced Launchers** - Added dedicated real-time and demo launchers
+- ✅ **Improved Diagnostics** - Added comprehensive health check and debugging tools
+- ✅ **Better Error Handling** - Robust packet processing and null checking
+- ✅ **Clean Codebase** - Removed duplicate files and unused components
+- ✅ **Updated Documentation** - Refreshed guides and quick start instructions
+
+### Key Improvements:
+- 🚀 **Faster Startup** - Optimized launcher configuration
+- 🔧 **Better Debugging** - Built-in diagnostic and optimization tools  
+- 📊 **Enhanced Dashboard** - Improved real-time monitoring interface
+- 🛡️ **Stable Operation** - Fixed packet processor errors and edge cases
+- 📁 **Cleaner Structure** - Single source of truth for all components
 
 ---
 
