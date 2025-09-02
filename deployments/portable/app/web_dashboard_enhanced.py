@@ -134,26 +134,28 @@ def generate_sample_data():
     severities = ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
     countries = ["Unknown", "US", "CN", "RU", "DE", "FR", "UK", "JP", "KR", "BR"]
     
-    # Generate more realistic threats with recent timestamps
+    # Generate more realistic threats with recent timestamps (much fewer)
     recent_threats.clear()
-    threat_count = 3 if DEMO_MODE else 8
+    threat_count = 1 if DEMO_MODE else random.randint(2, 5)  # Much fewer threats
     for i in range(threat_count):
-        threat = {
-            'id': f"{'DEMO' if DEMO_MODE else 'SIM'}_{random.randint(10000, 99999)}",
-            'timestamp': (datetime.now() - timedelta(minutes=random.randint(1, 120))).isoformat(),
-            'source_ip': random.choice(sample_ips),
-            'threat_type': random.choice(threat_types),
-            'severity': random.choice(severities),
-            'status': random.choice(['Blocked', 'Monitored', 'Quarantined']),
-            'country': random.choice(countries),
-            'confidence': random.randint(75, 99)
-        }
-        recent_threats.append(threat)
+        # Only generate threat if random chance (realistic frequency)
+        if random.random() < 0.3:  # Only 30% chance of generating each threat
+            threat = {
+                'id': f"{'DEMO' if DEMO_MODE else 'SIM'}_{random.randint(10000, 99999)}",
+                'timestamp': (datetime.now() - timedelta(minutes=random.randint(5, 240))).isoformat(),
+                'source_ip': random.choice(sample_ips),
+                'threat_type': random.choice(threat_types),
+                'severity': random.choices(severities, weights=[0.6, 0.25, 0.12, 0.03])[0],  # Mostly low severity
+                'status': random.choice(['Blocked', 'Monitored', 'Quarantined']),
+                'country': random.choice(countries),
+                'confidence': random.randint(75, 99)
+            }
+            recent_threats.append(threat)
     
     # Sort threats by timestamp (most recent first)
     recent_threats.sort(key=lambda x: x['timestamp'], reverse=True)
     
-    # Generate realistic blocked IPs
+    # Generate realistic blocked IPs (fewer)
     blocked_ips.clear()
     block_reasons = [
         "Multiple failed login attempts", "Malware distribution",
@@ -162,17 +164,19 @@ def generate_sample_data():
         "Phishing campaign source", "Exploit kit hosting"
     ]
     
-    blocked_count = 3 if DEMO_MODE else 6
+    blocked_count = 1 if DEMO_MODE else random.randint(2, 4)  # Much fewer blocked IPs
     for i in range(blocked_count):
-        blocked_ip = {
-            'ip': sample_ips[i],
-            'reason': random.choice(block_reasons),
-            'blocked_at': (datetime.now() - timedelta(hours=random.randint(1, 48))).isoformat(),
-            'country': random.choice(countries),
-            'threat_level': random.choice(severities),
-            'duration': f"{random.randint(1, 24)}h"
-        }
-        blocked_ips.append(blocked_ip)
+        # Only add if we actually have threats or random chance
+        if len(recent_threats) > 0 or random.random() < 0.2:  # 20% chance
+            blocked_ip = {
+                'ip': sample_ips[i],
+                'reason': random.choice(block_reasons),
+                'blocked_at': (datetime.now() - timedelta(hours=random.randint(1, 48))).isoformat(),
+                'country': random.choice(countries),
+                'threat_level': random.choices(severities, weights=[0.5, 0.3, 0.15, 0.05])[0],  # Mostly low
+                'duration': f"{random.randint(1, 24)}h"
+            }
+            blocked_ips.append(blocked_ip)
 
 def update_sample_stats():
     """Update sample statistics"""
@@ -182,11 +186,11 @@ def update_sample_stats():
         system_stats['uptime'] = int((datetime.now() - system_stats['start_time']).total_seconds())
         system_stats['packets_analyzed'] += random.randint(10, 50)
         
-        # Occasionally add threats
-        if random.random() < 0.2:
+        # Very rarely add threats (much more realistic)
+        if random.random() < 0.05:  # Only 5% chance instead of 20%
             system_stats['threats_detected'] += 1
             
-        time.sleep(10)  # Update every 10 seconds
+        time.sleep(30)  # Update every 30 seconds instead of 10
 
 @app.route('/')
 def dashboard():
@@ -227,20 +231,20 @@ def get_stats():
                 'last_update': datetime.now().isoformat()
             }
         else:
-            # Use demo/simulation data
-            base_threats = 50 if DEMO_MODE else 847
-            trend_value = random.randint(-5, 10) if DEMO_MODE else random.randint(-15, 25)
+            # Use demo/simulation data (much more realistic numbers)
+            base_threats = 8 if DEMO_MODE else random.randint(15, 35)  # Much lower base
+            trend_value = random.randint(-3, 5) if DEMO_MODE else random.randint(-8, 12)
             
             stats = {
                 'total_threats': base_threats + total_threats,
-                'threats_blocked': blocked_count + (random.randint(10, 30) if DEMO_MODE else random.randint(50, 100)),
+                'threats_blocked': blocked_count + (random.randint(2, 8) if DEMO_MODE else random.randint(5, 15)),  # Much lower
                 'active_connections': random.randint(50, 150) if DEMO_MODE else random.randint(150, 300),
                 'system_health': random.choice(['Excellent', 'Good', 'Fair']),
                 'critical_alerts': critical_threats,
                 'threat_trend': trend_value,
                 'uptime': f"{random.randint(1, 10)}d {random.randint(0, 23)}h" if DEMO_MODE else f"{random.randint(5, 30)}d {random.randint(0, 23)}h",
                 'packets_analyzed': system_stats['packets_analyzed'],
-                'threats_detected': system_stats['threats_detected'],
+                'threats_detected': system_stats['threats_detected'] + total_threats,  # Use actual count
                 'cpu_usage': random.randint(15, 40) if DEMO_MODE else random.randint(20, 60),
                 'memory_usage': random.randint(20, 50) if DEMO_MODE else random.randint(30, 70),
                 'data_source': 'Demo Simulation' if DEMO_MODE else 'Intelligent Simulation',
@@ -277,21 +281,21 @@ def get_threat_stats():
             threat_type = threat['threat_type']
             threat_counts[threat_type] = threat_counts.get(threat_type, 0) + 1
         
-        # Add baseline counts for variety
+        # Add baseline counts for variety (much more realistic numbers)
         if DEMO_MODE:
             baseline_threats = {
-                'Port Scan': random.randint(5, 15),
-                'Malware Detection': random.randint(2, 8),
-                'Brute Force': random.randint(3, 10)
+                'Port Scan': random.randint(1, 3),
+                'Malware Detection': random.randint(0, 2),
+                'Brute Force': random.randint(0, 2)
             }
         else:
             baseline_threats = {
-                'Port Scan': random.randint(15, 35),
-                'Malware Detection': random.randint(8, 20),
-                'Brute Force': random.randint(10, 25),
-                'DDoS Attack': random.randint(3, 12),
-                'SQL Injection': random.randint(5, 15),
-                'Suspicious Activity': random.randint(20, 40)
+                'Port Scan': random.randint(2, 8),
+                'Malware Detection': random.randint(1, 5),
+                'Brute Force': random.randint(1, 6),
+                'DDoS Attack': random.randint(0, 2),
+                'SQL Injection': random.randint(0, 3),
+                'Suspicious Activity': random.randint(3, 10)
             }
         
         # Combine recent and baseline threats
@@ -302,17 +306,17 @@ def get_threat_stats():
         for threat in recent_threats:
             severity_counts[threat['severity']] += 1
         
-        # Add baseline severity counts
+        # Add baseline severity counts (much more realistic)
         if DEMO_MODE:
-            severity_counts['LOW'] += random.randint(10, 20)
-            severity_counts['MEDIUM'] += random.randint(5, 15)
-            severity_counts['HIGH'] += random.randint(2, 8)
-            severity_counts['CRITICAL'] += random.randint(0, 3)
+            severity_counts['LOW'] += random.randint(3, 8)
+            severity_counts['MEDIUM'] += random.randint(1, 4)
+            severity_counts['HIGH'] += random.randint(0, 2)
+            severity_counts['CRITICAL'] += random.randint(0, 1)
         else:
-            severity_counts['LOW'] += random.randint(20, 40)
-            severity_counts['MEDIUM'] += random.randint(15, 30)
-            severity_counts['HIGH'] += random.randint(5, 15)
-            severity_counts['CRITICAL'] += random.randint(1, 8)
+            severity_counts['LOW'] += random.randint(8, 18)
+            severity_counts['MEDIUM'] += random.randint(3, 10)
+            severity_counts['HIGH'] += random.randint(1, 5)
+            severity_counts['CRITICAL'] += random.randint(0, 3)
         
         return jsonify({
             'threat_types': threat_counts,
