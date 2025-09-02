@@ -13,18 +13,71 @@ import threading
 import time
 
 # Add the app directory to the path
+app_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'deployments', 'portable', 'app')
+sys.path.append(app_dir)
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-# Import the real IDS engine
+# Import the real IDS engine with fallback handling
+REAL_ENGINE_AVAILABLE = False
+WORKING_SYSTEM_AVAILABLE = False
+
+# Try to import real IDS engine
 try:
-    from real_ids_engine import RealIDSEngine
-    from working_ids import WorkingIDSSystem
-    from data_manager import DataManager
+    from real_ids_engine import RealIDSEngine  # type: ignore
+    print("✅ Real IDS Engine imported successfully")
     REAL_ENGINE_AVAILABLE = True
-    print("✅ Real IDS components imported successfully")
 except ImportError as e:
-    print(f"⚠️ Warning: Could not import real engine: {e}")
-    REAL_ENGINE_AVAILABLE = False
+    print(f"⚠️ Warning: Could not import real IDS engine: {e}")
+    # Create a dummy class to prevent errors
+    class RealIDSEngine:
+        def __init__(self, **kwargs): pass
+        def start(self): return False
+        def is_running(self): return False
+
+# Try to import working IDS system
+try:
+    from working_ids import WorkingIDSSystem  # type: ignore
+    print("✅ Working IDS System imported successfully")
+    WORKING_SYSTEM_AVAILABLE = True
+except ImportError as e:
+    print(f"⚠️ Warning: Could not import working IDS system: {e}")
+    # Create a dummy class to prevent errors
+    class WorkingIDSSystem:
+        def __init__(self, **kwargs): 
+            self.stats = {}
+            self.blocked_ips = []
+            self.recent_threats = []
+            self.running = False
+        def start(self): return False
+
+# Simple data manager class for this context
+class SimpleDataManager:
+    """Simple data manager for storing threats and logs"""
+    def __init__(self):
+        self.threats = []
+        self.logs = []
+        self.blocked_ips = []
+    
+    def save_threat(self, threat_data):
+        """Save threat data"""
+        try:
+            self.threats.append(threat_data)
+            return True
+        except Exception as e:
+            print(f"Error saving threat: {e}")
+            return False
+    
+    def get_recent_threats(self, limit=10):
+        """Get recent threats"""
+        return self.threats[-limit:] if self.threats else []
+    
+    def add_log(self, log_entry):
+        """Add log entry"""
+        self.logs.append(log_entry)
+    
+    def get_recent_logs(self, limit=20):
+        """Get recent logs"""
+        return self.logs[-limit:] if self.logs else []
 
 app = Flask(__name__)
 
@@ -52,31 +105,39 @@ def initialize_real_system():
     global ids_engine, working_system, data_manager, system_stats
     
     try:
-        if REAL_ENGINE_AVAILABLE:
+        if REAL_ENGINE_AVAILABLE or WORKING_SYSTEM_AVAILABLE:
             # Initialize data manager first
             try:
-                data_manager = DataManager()
-                print("✅ Data manager initialized")
+                data_manager = SimpleDataManager()
+                print("✅ Simple data manager initialized")
             except Exception as e:
                 print(f"⚠️ Data manager warning: {e}")
                 data_manager = None
             
             # Initialize the working system for real threat detection
             try:
-                working_system = WorkingIDSSystem()
-                if hasattr(working_system, 'start'):
-                    working_system.start()
-                print("✅ Working IDS System initialized and started")
+                if WORKING_SYSTEM_AVAILABLE:
+                    working_system = WorkingIDSSystem()
+                    if hasattr(working_system, 'start'):
+                        working_system.start()
+                    print("✅ Working IDS System initialized and started")
+                else:
+                    working_system = None
+                    print("⚠️ Working IDS System not available")
             except Exception as e:
                 print(f"⚠️ Working system warning: {e}")
                 working_system = None
             
             # Try to initialize the real IDS engine
             try:
-                ids_engine = RealIDSEngine(db_manager=data_manager)
-                if hasattr(ids_engine, 'start'):
-                    ids_engine.start()
-                print("✅ Real IDS Engine initialized and started")
+                if REAL_ENGINE_AVAILABLE:
+                    ids_engine = RealIDSEngine(db_manager=data_manager)
+                    if hasattr(ids_engine, 'start'):
+                        ids_engine.start()
+                    print("✅ Real IDS Engine initialized and started")
+                else:
+                    ids_engine = None
+                    print("⚠️ Real IDS Engine not available")
             except Exception as e:
                 print(f"⚠️ Real IDS Engine warning: {e}")
                 ids_engine = None
